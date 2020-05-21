@@ -286,6 +286,32 @@ options: {
 
 See the [Client] section for list of operations and parameters they accept.
 
+To create a custom key, you can use the `custom_key` option, which accepts the 
+`route_params` and the `request.env` as parameters so that you can access 
+parameters sent from the frontend.
+
+```rb
+options: {
+  custom_key: -> (route_params, env) {
+    filename = route_params["filename"]
+    prefix = env["action_dispatch.request.path_parameters"][:foobar]
+    "#{prefix}-#{filename}"
+  }
+}
+```
+
+The above example assumes parameter `:foobar` is sent as a path parameter. 
+This can be setup by mounting this engine in a sub-path that starts with 
+one or more parameters:
+
+```rb
+# config/routes.rb (Rails)
+Rails.application.routes.draw do
+  # ...
+  mount UPPY_S3_MULTIPART_APP => "/:foobar/s3/multipart"
+end
+```
+
 #### `:public`
 
 The `:public` option sets the ACL of uploaded objects to `public-read`, and
