@@ -27,6 +27,19 @@ describe Uppy::S3Multipart::App do
       assert_match /^\w{32}$/,               @s3.api_requests[0][:params][:key]
     end
 
+    it "creates a multipart upload with a custom key when defined in the options" do
+      @endpoint = Uppy::S3Multipart::App.new(bucket: @bucket, options: {
+        custom_key: -> (route_params, env) {
+          "foo_bar"
+        }
+      })
+
+      response = app.post "/s3/multipart"
+
+      assert_equal :create_multipart_upload, @s3.api_requests[0][:operation_name]
+      assert_equal "foo_bar",                @s3.api_requests[0][:params][:key]
+    end
+
     it "returns multipart upload id and key" do
       @s3.stub_responses(:create_multipart_upload, { upload_id: "foo", key: "bar" })
 

@@ -41,8 +41,12 @@ module Uppy
             type     = r.params["type"]
             filename = r.params["filename"]
 
-            key = SecureRandom.hex + File.extname(filename.to_s)
-            key = [*opts[:prefix], key].join("/")
+            if opts[:options] && opts[:options][:custom_key]
+              key = opts[:options][:custom_key].call(r.params, request.env)
+            else
+              key = SecureRandom.hex + File.extname(filename.to_s)
+              key = [*opts[:prefix], key].join("/")
+            end
 
             options = {}
             options[:content_type]        = type if type
